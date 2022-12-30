@@ -16,6 +16,8 @@ private extension String {
 
 class TasksListViewController: UIViewController {
     
+    private let segmentedItems = ["A-Z", "Date"]
+    
     private let output: IRouter?
     
     private var tasksLists: Results<TasksList>!
@@ -26,6 +28,12 @@ class TasksListViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         return tableView
+    }()
+    
+    private lazy var segmentedControl: UISegmentedControl = {
+        let segmentedControl = UISegmentedControl(items: segmentedItems)
+        segmentedControl.selectedSegmentIndex = 0
+        return segmentedControl
     }()
     
     init(output: IRouter) {
@@ -39,6 +47,8 @@ class TasksListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        tableView.reloadData()
+        
         navigationController?.navigationBar.prefersLargeTitles = true
         
         let appearance = UINavigationBarAppearance()
@@ -58,6 +68,13 @@ class TasksListViewController: UIViewController {
             action: #selector(addNewTask)
         )
         
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: "Edit",
+            style: .plain,
+            target: self,
+            action: #selector(editMode)
+        )
+        
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.compactAppearance = appearance
@@ -67,12 +84,25 @@ class TasksListViewController: UIViewController {
     @objc private func addNewTask() {
         alertForAddAndUpdateList()
     }
+    
+    @objc private func editMode() {
+        if tableView.isEditing {
+            tableView.setEditing(false, animated: true)
+            navigationItem.leftBarButtonItem?.title = "Edit"
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        } else {
+            navigationItem.leftBarButtonItem?.title = "Done"
+            tableView.setEditing(true, animated: true)
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tasksLists = realm.objects(TasksList.self)
         
+        setupSegmentedControl()
         setupTableView()
         
         title = .title
@@ -84,13 +114,22 @@ class TasksListViewController: UIViewController {
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(segmentedControl).inset(40)
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+    }
+    
+    private func setupSegmentedControl() {
+        view.addSubview(segmentedControl)
+        segmentedControl.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide)
         }
     }
 
 }
 
-
+// MARK: - TableView DataSource
 extension TasksListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         tasksLists.count
@@ -110,31 +149,85 @@ extension TasksListViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - TableView Delegate
 extension TasksListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let tasksList = tasksLists[indexPath.row]
 //        let detailVC = DetailTaskViewController(currentTasksList: tasksList)
         output?.showDetailTaskScreen(taskId: indexPath.row, tasksList: tasksList)
     }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let currentList = tasksLists[indexPath.row]
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") {  (_, _, _) in
+            
+            StorageManager.deleteList(taskList: currentList)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+        
+        let editAction = UIContextualAction(style: .normal, title: "Edit") {  (_, _, _) in
+            
+            self.alertForAddAndUpdateList(currentList) {
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        }
+        
+        let doneAction = UIContextualAction(style: .normal, title: "Done") {  (_, _, _) in
+            StorageManager.makeAllDone(currentList)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
+        
+        let swipeActions = UISwipeActionsConfiguration(actions: [deleteAction, doneAction, editAction])
+        
+        editAction.backgroundColor = .orange
+        doneAction.backgroundColor = .green
+        
+        return swipeActions
+    }
+    
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let itemToMove = tasksLists[sourceIndexPath.row]
+        realm.delete(itemToMove)
+        realm.add(itemToMove)
+    }
 }
 
+// MARK: - Alert
 extension TasksListViewController {
     
-    private func alertForAddAndUpdateList() {
+    private func alertForAddAndUpdateList(_ listName: TasksList? = nil, completion: (() -> Void)? = nil) {
         
-        let alert = UIAlertController(title: "New list",
+        var title = "New List"
+        var doneButton = "Save"
+        
+        if listName != nil {
+            title = "Edit List"
+            doneButton = "Update"
+        }
+        
+        let alert = UIAlertController(title: title,
                                       message: "Please, insert new value",
                                       preferredStyle: .alert)
         var alertTextField: UITextField!
         
-        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+        
+        let saveAction = UIAlertAction(title: doneButton, style: .default) { _ in
             guard let newList = alertTextField.text, !newList.isEmpty else { return }
             
-            let tasksList = TasksList()
-            tasksList.name = newList
-            
-            StorageManager.saveTasksList(tasksList)
-            self.tableView.insertRows(at: [IndexPath(row: self.tasksLists.count - 1, section: 0)], with: .automatic)
+            if let listName = listName {
+                StorageManager.editList(taskList: listName, newListName: newList)
+                if completion != nil { completion!() }
+            } else {
+                let tasksList = TasksList()
+                tasksList.name = newList
+                
+                StorageManager.saveTasksList(tasksList)
+                self.tableView.insertRows(at: [IndexPath(
+                    row: self.tasksLists.count - 1, section: 0)], with: .automatic
+                )
+            }
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
@@ -147,6 +240,11 @@ extension TasksListViewController {
             alertTextField.placeholder = "List name"
         }
         
+        if let listName = listName {
+            alertTextField.text = listName.name
+        }
+        
         present(alert, animated: true)
     }
 }
+

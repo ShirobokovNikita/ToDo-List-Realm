@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		94A10C7B3D49D5574C819EB1 /* Pods_ToDo_List_Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB99D3148B6AD5BE0B8FEAEE /* Pods_ToDo_List_Realm.framework */; };
+		E001BC222954CDE60060702F /* DetailTaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E001BC212954CDE60060702F /* DetailTaskCell.swift */; };
 		E06B3D092950825400ACD791 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B3D082950825400ACD791 /* Task.swift */; };
 		E06B3D0B2950835400ACD791 /* TasksList.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B3D0A2950835400ACD791 /* TasksList.swift */; };
 		E06B3D0D29508B8F00ACD791 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B3D0C29508B8F00ACD791 /* StorageManager.swift */; };
@@ -27,6 +28,7 @@
 /* Begin PBXFileReference section */
 		B68EB77AA4A32E01A0BD0D8C /* Pods-ToDo List Realm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDo List Realm.release.xcconfig"; path = "Target Support Files/Pods-ToDo List Realm/Pods-ToDo List Realm.release.xcconfig"; sourceTree = "<group>"; };
 		D759423F3405E12C46D6F432 /* Pods-ToDo List Realm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDo List Realm.debug.xcconfig"; path = "Target Support Files/Pods-ToDo List Realm/Pods-ToDo List Realm.debug.xcconfig"; sourceTree = "<group>"; };
+		E001BC212954CDE60060702F /* DetailTaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTaskCell.swift; sourceTree = "<group>"; };
 		E06B3D082950825400ACD791 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		E06B3D0A2950835400ACD791 /* TasksList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksList.swift; sourceTree = "<group>"; };
 		E06B3D0C29508B8F00ACD791 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				E0E8435F2951C9B400322343 /* DatabaseFilling.swift */,
 				E06B3D0C29508B8F00ACD791 /* StorageManager.swift */,
 				E06E0F78294F4CC100BEC9FC /* TaskCell.swift */,
+				E001BC212954CDE60060702F /* DetailTaskCell.swift */,
 				E06E0F76294F4B7700BEC9FC /* DetailTaskViewController.swift */,
 				E06B3D072950824400ACD791 /* Model */,
 				E06E0F70294F3D3700BEC9FC /* Router.swift */,
@@ -241,6 +244,7 @@
 				E0E843602951C9B400322343 /* DatabaseFilling.swift in Sources */,
 				E06B3D092950825400ACD791 /* Task.swift in Sources */,
 				E06B3D0D29508B8F00ACD791 /* StorageManager.swift in Sources */,
+				E001BC222954CDE60060702F /* DetailTaskCell.swift in Sources */,
 				E06E0F71294F3D3700BEC9FC /* Router.swift in Sources */,
 				E06E0F75294F4ABA00BEC9FC /* TasksListViewController.swift in Sources */,
 				E06E0F5A294F3B5100BEC9FC /* AppDelegate.swift in Sources */,

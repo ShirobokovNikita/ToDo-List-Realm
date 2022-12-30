@@ -1,16 +1,16 @@
 //
-//  TaskCell.swift
+//  DetailTaskCell.swift
 //  ToDo List Realm
 //
-//  Created by Nikita Shirobokov on 18.12.22.
+//  Created by Nikita Shirobokov on 22.12.22.
 //
 
 import UIKit
 
-class TaskCell: UITableViewCell {
+class DetailTaskCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: .value1, reuseIdentifier: reuseIdentifier)
+        super.init(style: .default, reuseIdentifier: reuseIdentifier)
     }
     
     required init?(coder: NSCoder) {
