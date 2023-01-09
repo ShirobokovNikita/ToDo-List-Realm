@@ -58,8 +58,7 @@ class DetailTaskViewController: UIViewController {
             action: #selector(editMode)
         ),
             UIBarButtonItem(
-            title: "Add",
-            style: .plain,
+            barButtonSystemItem: .add,
             target: self,
             action: #selector(addNewTask)
         )]

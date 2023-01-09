@@ -18,3 +18,24 @@ class TaskCell: UITableViewCell {
     }
     
 }
+
+extension UITableViewCell {
+    func configure(with tasksList: TasksList, cell: UITableViewCell) {
+        let currentTasks = tasksList.tasks.filter("isComplete = false")
+        let completedTasks = tasksList.tasks.filter("isComplete = true")
+        
+        var content = cell.defaultContentConfiguration()
+        content.text = tasksList.name
+        
+        if !currentTasks.isEmpty {
+            content.secondaryText = "\(currentTasks.count)"
+        } else if !completedTasks.isEmpty {
+            content.secondaryText = "✅"
+        } else {
+            content.secondaryText = "0"
+        }
+ 
+        cell.contentConfiguration = content
+    }
+    
+}

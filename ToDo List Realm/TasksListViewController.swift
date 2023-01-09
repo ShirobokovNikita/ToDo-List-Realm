@@ -32,7 +32,8 @@ class TasksListViewController: UIViewController {
     
     private lazy var segmentedControl: UISegmentedControl = {
         let segmentedControl = UISegmentedControl(items: segmentedItems)
-        segmentedControl.selectedSegmentIndex = 0
+        segmentedControl.selectedSegmentIndex = 1
+        segmentedControl.addTarget(.none, action: #selector(sortingList), for: .valueChanged)
         return segmentedControl
     }()
     
@@ -62,8 +63,7 @@ class TasksListViewController: UIViewController {
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Add",
-            style: .plain,
+            barButtonSystemItem: .add,
             target: self,
             action: #selector(addNewTask)
         )
@@ -81,6 +81,8 @@ class TasksListViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
     
+    //MARK: - Objc Methods
+    
     @objc private func addNewTask() {
         alertForAddAndUpdateList()
     }
@@ -95,6 +97,19 @@ class TasksListViewController: UIViewController {
             tableView.setEditing(true, animated: true)
             navigationItem.rightBarButtonItem?.isEnabled = false
         }
+    }
+    
+    @objc private func sortingList() {
+        switch segmentedControl.selectedSegmentIndex {
+        case 0:
+            tasksLists = tasksLists.sorted(byKeyPath: "name")
+        case 1:
+            tasksLists = tasksLists.sorted(byKeyPath: "date")
+        default:
+            break
+        }
+        
+        tableView.reloadData()
     }
 
     override func viewDidLoad() {
@@ -126,7 +141,6 @@ class TasksListViewController: UIViewController {
             make.top.equalTo(view.safeAreaLayoutGuide)
         }
     }
-
 }
 
 // MARK: - TableView DataSource
@@ -138,13 +152,15 @@ extension TasksListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: .cellReuseIdentifier, for: indexPath) as! TaskCell
         
-        let taskList = tasksLists[indexPath.row]
+        let tasksList = tasksLists[indexPath.row]
         
-        var content = cell.defaultContentConfiguration()
-        content.text = taskList.name
-        content.secondaryText = "\(taskList.tasks.count)"
-        cell.contentConfiguration = content
         
+//        var content = cell.defaultContentConfiguration()
+        cell.configure(with: tasksList, cell: cell)
+//        content.text = tasksList.name
+//        content.secondaryText = "\(tasksList.tasks.count)"
+        
+//        cell.contentConfiguration = content
         return cell
     }
 }
@@ -178,7 +194,7 @@ extension TasksListViewController: UITableViewDelegate {
             StorageManager.makeAllDone(currentList)
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }
-        
+    
         let swipeActions = UISwipeActionsConfiguration(actions: [deleteAction, doneAction, editAction])
         
         editAction.backgroundColor = .orange
@@ -187,11 +203,11 @@ extension TasksListViewController: UITableViewDelegate {
         return swipeActions
     }
     
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let itemToMove = tasksLists[sourceIndexPath.row]
-        realm.delete(itemToMove)
-        realm.add(itemToMove)
-    }
+//    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+//        let itemToMove = tasksLists[sourceIndexPath.row]
+//        realm.delete(itemToMove)
+//        realm.add(itemToMove)
+//    }
 }
 
 // MARK: - Alert
